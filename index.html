@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MemoryIIT - Galeria Romântica</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: white;
+      overflow-x: hidden;
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at center, #ffdde1, #ee9ca7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 1000;
+      text-align: center;
+    }
+    .overlay h1 { font-size: 2.5rem; margin: 0; }
+    .overlay .date {
+      margin-top: 10px;
+      font-size: 1.2rem;
+      animation: colorShift 4s infinite;
+    }
+    @keyframes colorShift {
+      0% { color: #ffe6f0 }
+      25% { color: #ff99cc }
+      50% { color: #ff4b6e }
+      75% { color: #ff99cc }
+      100% { color: #ffe6f0 }
+    }
+    .overlay button {
+      margin-top: 20px;
+      padding: 14px 34px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      background: linear-gradient(90deg,#ff6ec4,#7873f5);
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    .gallery {
+      position: relative;
+      width: 100%;
+      max-width: 900px;
+      height: 70vh;
+      margin: 60px auto;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .slide {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      transition: opacity 1s ease;
+    }
+    .slide.active { opacity: 1; }
+    .slide img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .caption {
+      position: absolute;
+      bottom: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 1.3rem;
+      text-shadow: 0 0 10px black;
+    }
+    .controls {
+      position: absolute;
+      top: 50%;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      transform: translateY(-50%);
+    }
+    .controls button {
+      background: rgba(0,0,0,0.5);
+      border: none;
+      color: white;
+      padding: 10px;
+      cursor: pointer;
+      border-radius: 50%;
+      margin: 0 15px;
+      font-size: 1.5rem;
+    }
+    #loveMessage {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%,-50%) scale(0.8);
+      font-size: 3rem;
+      opacity: 0;
+      transition: all 1.2s ease;
+      z-index: 900;
+    }
+    #loveMessage.show {
+      opacity: 1;
+      transform: translate(-50%,-50%) scale(1.2);
+      color: #ff4b6e;
+      text-shadow: 0 0 15px #ff99cc;
+    }
+    .heart {
+      position: fixed;
+      width: 18px;
+      height: 18px;
+      background: red;
+      transform: rotate(45deg);
+      animation: floatUp linear forwards;
+    }
+    .heart::before, .heart::after {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      background: red;
+      border-radius: 50%;
+    }
+    .heart::before { top: -9px; left: 0; }
+    .heart::after { left: -9px; top: 0; }
+    @keyframes floatUp {
+      from { opacity:1; transform:translateY(0) rotate(45deg) scale(1); }
+      to { opacity:0; transform:translateY(-250px) rotate(45deg) scale(0.6); }
+    }
+    /* Botão clique aqui */
+    #finalButton {
+      display: none;
+      margin: 20px auto 10px;
+      padding: 14px 34px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: hotpink;
+      color: white;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+    }
+    /* NOVO CSS para o Player */
+    #musicControls {
+      display: none; /* Inicia oculto */
+      text-align: center;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 300px; /* Largura do player */
+    }
+    .progress-bar {
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.4);
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .progress-dot {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+    .player-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px; /* Espaço entre botões */
+    }
+    .player-buttons button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 5px;
+      font-size: 1.8rem;
+    }
+    #playPauseButton {
+      font-size: 2.5rem; /* Ícone maior para Play/Pause */
+    }
+    /* Fim NOVO CSS */
+
+    /* Cena final */
+    #finalScene {
+      display: none;
+      opacity: 0;
+      text-align: center;
+      margin-top: 50px;
+      transition: opacity 2s ease;
+    }
+    #finalScene.show {
+      display: block;
+      opacity: 1;
+    }
+    #finalScene img {
+      max-width: 500px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    #finalScene p {
+      margin-top: 20px;
+      font-size: 1.6rem;
+      color: #ff99cc;
+      text-shadow: 0 0 10px black;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay" id="overlay">
+    <h1>Bem-vindo ao MemoryIIT</h1>
+    <p class="date">15 de Outubro – Nossa data especial 💕</p>
+    <button onclick="startExperience()">💖 Começar 💖</button>
+  </div>
+
+  <div id="loveMessage">EU TE AMO</div>
+
+  <div class="gallery" id="gallery">
+    <div class="slide active">
+      <img src="https://images.unsplash.com/photo-1503023345310-bd7c1de61c7d?w=1600&q=80" />
+      <div class="caption">Nosso primeiro encontro sob as estrelas ✨</div>
+    </div>
+    <div class="slide">
+      <img src="https://images.unsplash.com/photo-1499951360447-b19be8fe80f5?w=1600&q=80" />
+      <div class="caption">Momentos que aquecem o coração ❤️</div>
+    </div>
+    <div class="slide">
+      <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=1600&q=80" />
+      <div class="caption">Juntos em cada aventura ☀️</div>
+    </div>
+    <div class="slide">
+      <img src="https://images.unsplash.com/photo-1501785888041-af3ef285b470?w=1600&q=80" />
+      <div class="caption">Amor que dura para sempre ❤️</div>
+    </div>
+
+    <div class="controls">
+      <button onclick="prevSlide()">⟨</button>
+      <button onclick="nextSlide()">⟩</button>
+    </div>
+  </div>
+
+  <div id="musicControls">
+    <div class="progress-bar">
+      <div class="progress-dot"></div>
+    </div>
+    <div class="player-buttons">
+      <button>&#x23EE;</button>
+      
+      <button id="playPauseButton" onclick="toggleMusic()">&#x23F8;</button>
+
+      <button>&#x23ED;</button>
+    </div>
+  </div>
+
+  <button id="finalButton" onclick="showFinalScene()">Clique aqui 💘</button>
+
+  <div id="finalScene">
+    <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=1200&q=80" alt="Nós dois">
+    <p>Você é o meu presente, meu futuro e meu para sempre 💖</p>
+  </div>
+
+  <audio id="bgMusic" src="alianca.mp3" loop></audio>
+
+  <script>
+    let index = 0;
+    const slides = document.querySelectorAll(".slide");
+    // Referências aos elementos de áudio e botão
+    const music = document.getElementById("bgMusic");
+    const playPauseButton = document.getElementById("playPauseButton");
+
+    function showSlide(i) {
+      slides.forEach((s, idx) => {
+        s.classList.toggle("active", idx === i);
+      });
+
+      if (i === slides.length - 1) {
+        document.getElementById("finalButton").style.display = "block";
+      } else {
+        document.getElementById("finalButton").style.display = "none";
+      }
+    }
+
+    function nextSlide() {
+      index = (index + 1) % slides.length;
+      showSlide(index);
+    }
+    function prevSlide() {
+      index = (index - 1 + slides.length) % slides.length;
+      showSlide(index);
+    }
+
+    function startExperience() {
+      document.getElementById("overlay").style.display = "none";
+      document.getElementById("musicControls").style.display = "block"; // MOSTRA O PLAYER
+
+      const love = document.getElementById("loveMessage");
+      love.classList.add("show");
+      spawnHearts(40);
+      setTimeout(() => {
+        love.classList.remove("show");
+      }, 3000);
+
+      // 🎵 Música começa aqui
+      music.volume = 0.7;
+      music.play().catch(() => {
+        console.log("Reprodução bloqueada pelo navegador.");
+      });
+      // Garante que o ícone inicial seja de Pause (||)
+      playPauseButton.innerHTML = '&#x23F8;';
+    }
+
+    // Função de Tocar/Parar Música
+    function toggleMusic() {
+      if (music.paused) {
+        music.play();
+        // Mudar para o ícone de Pause (||)
+        playPauseButton.innerHTML = '&#x23F8;'; 
+      } else {
+        music.pause();
+        // Mudar para o ícone de Play (>)
+        playPauseButton.innerHTML = '&#x25B6;'; 
+      }
+    }
+
+    function spawnHearts(n) {
+      for (let i=0; i<n; i++) {
+        const h = document.createElement("div");
+        h.className = "heart";
+        h.style.left = Math.random() * window.innerWidth + "px";
+        h.style.bottom = "-30px";
+        h.style.animationDuration = (2 + Math.random()*3) + "s";
+        document.body.appendChild(h);
+        setTimeout(()=>h.remove(),4000);
+      }
+    }
+
+    function showFinalScene() {
+      document.getElementById("gallery").style.display = "none";
+      document.getElementById("finalButton").style.display = "none";
+      document.getElementById("musicControls").style.display = "none"; // ESCONDE O PLAYER
+      const finalScene = document.getElementById("finalScene");
+      finalScene.classList.add("show");
+    }
+  </script>
+</body>
+</html>
