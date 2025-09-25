@@ -5,6 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MemoryIIT - Galeria Romântica</title>
   <style>
+    /* ------------------------------------- */
+    /* ESTILOS GERAIS E BASE (RESPONSIVOS) */
+    /* ------------------------------------- */
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -22,8 +25,12 @@
       flex-direction: column;
       z-index: 1000;
       text-align: center;
+      padding: 20px; /* Padding para evitar toque nas bordas do celular */
     }
-    .overlay h1 { font-size: 2.5rem; margin: 0; }
+    .overlay h1 { 
+      font-size: 2.5rem; 
+      margin: 0;
+    }
     .overlay .date {
       margin-top: 10px;
       font-size: 1.2rem;
@@ -37,22 +44,29 @@
       100% { color: #ffe6f0 }
     }
     .overlay button {
-      margin-top: 20px;
-      padding: 14px 34px;
+      margin-top: 30px; /* Aumentado para melhor toque em mobile */
+      padding: 16px 40px; /* Aumentado para melhor toque em mobile */
       border: none;
       border-radius: 30px;
-      font-size: 1.1rem;
+      font-size: 1.2rem; 
       cursor: pointer;
       background: linear-gradient(90deg,#ff6ec4,#7873f5);
       color: #fff;
       box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
     }
+    .overlay button:active { transform: scale(0.95); } /* Efeito de clique */
+    
+    /* ------------------------------------- */
+    /* GALERIA E SLIDES */
+    /* ------------------------------------- */
     .gallery {
       position: relative;
-      width: 100%;
+      width: 95%; /* Ocupa mais espaço em telas pequenas */
       max-width: 900px;
-      height: 70vh;
-      margin: 60px auto;
+      height: 60vh; /* Altura ajustada para telas menores */
+      min-height: 300px;
+      margin: 40px auto; /* Margem ajustada */
       border-radius: 16px;
       overflow: hidden;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -71,12 +85,15 @@
     }
     .caption {
       position: absolute;
-      bottom: 20px;
+      bottom: 15px;
       left: 0;
       right: 0;
       text-align: center;
-      font-size: 1.3rem;
+      font-size: 1rem; /* Reduzido para mobile */
+      padding: 5px 10px;
+      background: rgba(0, 0, 0, 0.4);
       text-shadow: 0 0 10px black;
+      transition: font-size 0.3s;
     }
     .controls {
       position: absolute;
@@ -87,15 +104,103 @@
       transform: translateY(-50%);
     }
     .controls button {
-      background: rgba(0,0,0,0.5);
+      background: rgba(0,0,0,0.4);
       border: none;
       color: white;
-      padding: 10px;
+      padding: 15px; /* Aumentado para melhor toque em mobile */
       cursor: pointer;
       border-radius: 50%;
-      margin: 0 15px;
-      font-size: 1.5rem;
+      margin: 0 10px; /* Margem reduzida */
+      font-size: 1.2rem; /* Tamanho ajustado */
+      transition: background 0.2s;
     }
+    .controls button:hover {
+        background: rgba(0,0,0,0.7);
+    }
+    
+    /* Media Query para Telas Maiores (Desktop) */
+    @media (min-width: 768px) {
+      .gallery {
+        height: 70vh;
+        margin: 60px auto;
+      }
+      .overlay h1 {
+        font-size: 3.5rem;
+      }
+      .caption {
+        font-size: 1.3rem;
+        bottom: 20px;
+      }
+      .controls button {
+        padding: 10px;
+        margin: 0 15px;
+        font-size: 1.5rem;
+      }
+    }
+
+    /* ------------------------------------- */
+    /* PLAYER DE MÚSICA (CÓDIGO ANTERIOR) */
+    /* ------------------------------------- */
+    #finalButton {
+      display: none;
+      margin: 20px auto 10px;
+      padding: 14px 34px;
+      border: none;
+      border-radius: 30px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      background: hotpink;
+      color: white;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      transition: opacity 0.3s;
+    }
+    
+    #musicControls {
+      display: none;
+      text-align: center;
+      margin: 20px auto;
+      width: 90%;
+      max-width: 300px;
+    }
+    .progress-bar {
+      width: 100%;
+      height: 2px;
+      background: rgba(255, 255, 255, 0.4);
+      margin-bottom: 10px;
+      position: relative;
+    }
+    .progress-dot {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 8px;
+      height: 8px;
+      background: white;
+      border-radius: 50%;
+      transform: translateY(-50%);
+    }
+    .player-buttons {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 15px;
+    }
+    .player-buttons button {
+      background: none;
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 5px;
+      font-size: 1.8rem;
+    }
+    #playPauseButton {
+      font-size: 2.5rem;
+      color: #ff6ec4; /* Cor para destaque do botão principal */
+    }
+    
+    /* ------------------------------------- */
+    /* EFEITOS E CENA FINAL */
+    /* ------------------------------------- */
     #loveMessage {
       position: fixed;
       top: 50%;
@@ -105,6 +210,7 @@
       opacity: 0;
       transition: all 1.2s ease;
       z-index: 900;
+      pointer-events: none; /* Não interfere nos cliques */
     }
     #loveMessage.show {
       opacity: 1;
@@ -134,69 +240,12 @@
       from { opacity:1; transform:translateY(0) rotate(45deg) scale(1); }
       to { opacity:0; transform:translateY(-250px) rotate(45deg) scale(0.6); }
     }
-    /* Botão clique aqui */
-    #finalButton {
-      display: none;
-      margin: 20px auto 10px;
-      padding: 14px 34px;
-      border: none;
-      border-radius: 30px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      background: hotpink;
-      color: white;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-    }
-    /* NOVO CSS para o Player */
-    #musicControls {
-      display: none; /* Inicia oculto */
-      text-align: center;
-      margin: 20px auto;
-      width: 90%;
-      max-width: 300px; /* Largura do player */
-    }
-    .progress-bar {
-      width: 100%;
-      height: 2px;
-      background: rgba(255, 255, 255, 0.4);
-      margin-bottom: 10px;
-      position: relative;
-    }
-    .progress-dot {
-      position: absolute;
-      top: 50%;
-      left: 0;
-      width: 8px;
-      height: 8px;
-      background: white;
-      border-radius: 50%;
-      transform: translateY(-50%);
-    }
-    .player-buttons {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 15px; /* Espaço entre botões */
-    }
-    .player-buttons button {
-      background: none;
-      border: none;
-      color: white;
-      cursor: pointer;
-      padding: 5px;
-      font-size: 1.8rem;
-    }
-    #playPauseButton {
-      font-size: 2.5rem; /* Ícone maior para Play/Pause */
-    }
-    /* Fim NOVO CSS */
-
-    /* Cena final */
     #finalScene {
       display: none;
       opacity: 0;
       text-align: center;
       margin-top: 50px;
+      padding-bottom: 50px; /* Espaço para celular */
       transition: opacity 2s ease;
     }
     #finalScene.show {
@@ -204,15 +253,25 @@
       opacity: 1;
     }
     #finalScene img {
-      max-width: 500px;
+      max-width: 90%; /* Responsivo */
+      height: auto;
       border-radius: 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.5);
     }
     #finalScene p {
       margin-top: 20px;
-      font-size: 1.6rem;
+      font-size: 1.4rem; /* Responsivo */
       color: #ff99cc;
       text-shadow: 0 0 10px black;
+      padding: 0 15px;
+    }
+    @media (min-width: 768px) {
+        #finalScene p {
+            font-size: 1.6rem;
+        }
+        #finalScene img {
+            max-width: 500px;
+        }
     }
   </style>
 </head>
@@ -256,9 +315,7 @@
     <div class="player-buttons">
       <button>&#x23EE;</button>
       
-      <button id="playPauseButton" onclick="toggleMusic()">&#x23F8;</button>
-
-      <button>&#x23ED;</button>
+      <button id="playPauseButton" onclick="toggleMusic()">&#x25B6;</button> <button>&#x23ED;</button>
     </div>
   </div>
 
@@ -274,7 +331,6 @@
   <script>
     let index = 0;
     const slides = document.querySelectorAll(".slide");
-    // Referências aos elementos de áudio e botão
     const music = document.getElementById("bgMusic");
     const playPauseButton = document.getElementById("playPauseButton");
 
@@ -301,7 +357,7 @@
 
     function startExperience() {
       document.getElementById("overlay").style.display = "none";
-      document.getElementById("musicControls").style.display = "block"; // MOSTRA O PLAYER
+      document.getElementById("musicControls").style.display = "block";
 
       const love = document.getElementById("loveMessage");
       love.classList.add("show");
@@ -310,21 +366,31 @@
         love.classList.remove("show");
       }, 3000);
 
-      // 🎵 Música começa aqui
+      // CORREÇÃO: Tenta tocar a música após a interação do usuário
       music.volume = 0.7;
-      music.play().catch(() => {
-        console.log("Reprodução bloqueada pelo navegador.");
-      });
-      // Garante que o ícone inicial seja de Pause (||)
-      playPauseButton.innerHTML = '&#x23F8;';
+      music.play()
+        .then(() => {
+            // Se a música tocar, o ícone deve ser de Pause (||)
+            playPauseButton.innerHTML = '&#x23F8;';
+        })
+        .catch(error => {
+            console.log("Erro ao tentar tocar a música automaticamente:", error);
+            // Se falhar (ainda bloqueado), garante que o ícone seja de Play (>)
+            playPauseButton.innerHTML = '&#x25B6;';
+        });
     }
 
     // Função de Tocar/Parar Música
     function toggleMusic() {
       if (music.paused) {
-        music.play();
-        // Mudar para o ícone de Pause (||)
-        playPauseButton.innerHTML = '&#x23F8;'; 
+        music.play()
+          .then(() => {
+            // Mudar para o ícone de Pause (||)
+            playPauseButton.innerHTML = '&#x23F8;'; 
+          })
+          .catch(error => {
+            console.error("Erro ao tentar tocar a música:", error);
+          });
       } else {
         music.pause();
         // Mudar para o ícone de Play (>)
@@ -347,10 +413,13 @@
     function showFinalScene() {
       document.getElementById("gallery").style.display = "none";
       document.getElementById("finalButton").style.display = "none";
-      document.getElementById("musicControls").style.display = "none"; // ESCONDE O PLAYER
+      document.getElementById("musicControls").style.display = "none";
       const finalScene = document.getElementById("finalScene");
       finalScene.classList.add("show");
     }
+    
+    // Configuração inicial do botão de música para o ícone de Play
+    playPauseButton.innerHTML = '&#x25B6;'; 
   </script>
 </body>
 </html>
